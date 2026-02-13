@@ -1,0 +1,10 @@
+<h2>Orçamento {{ orcamento.numero_registro }}</h2>
+
+<p><strong>Cliente:</strong> {{ orcamento.cliente.nome }}</p>
+<p><strong>Total:</strong> R$ {{ orcamento.total }}</p>
+
+<hr>
+
+<a href="{% url 'orcamento_pdf' orcamento.id %}" target="_blank">
+    Exportar PDF
+</a>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        h1 { text-align: center; }
+        .header, .footer { margin-bottom: 20px; }
+        .info { margin-bottom: 10px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 6px;
+            text-align: left;
+        }
+        .totais {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Roseli Budke</h1>
+    <p>WhatsApp: (67) 99833-7364</p>
+    <p>Instagram: roselibudke</p>
+    <p>Facebook: Roseli Budke</p>
+    <p>Nº Registro: {{ orcamento.numero_registro }}</p>
+</div>
+
+<div class="info">
+    <strong>Cliente:</strong> {{ orcamento.cliente.nome }}<br>
+    <strong>CPF/CNPJ:</strong> {{ orcamento.cliente.documento }}<br>
+    <strong>Email:</strong> {{ orcamento.cliente.email }}<br>
+    <strong>Celular:</strong> {{ orcamento.cliente.celular }}
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Tipo</th>
+            <th>Descrição</th>
+            <th>Qtd</th>
+            <th>Preço Unit.</th>
+            <th>Valor</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in orcamento.itens.all %}
+        <tr>
+            <td>{{ item.tipo }}</td>
+            <td>{{ item.descricao }}</td>
+            <td>{{ item.quantidade }}</td>
+            <td>R$ {{ item.preco_unitario }}</td>
+            <td>R$ {{ item.valor }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="totais">
+    <p><strong>Subtotal:</strong> R$ {{ orcamento.subtotal }}</p>
+    <p><strong>Desconto ({{ orcamento.desconto_percentual }}%):</strong> R$ {{ orcamento.desconto_valor }}</p>
+    <p><strong>Total:</strong> R$ {{ orcamento.total }}</p>
+    <p><strong>Forma de Pagamento:</strong> {{ orcamento.forma_pagamento }}</p>
+    <p><strong>Prazo de Entrega:</strong> {{ orcamento.prazo_entrega }}</p>
+</div>
+
+{% if orcamento.observacoes %}
+<div>
+    <strong>Observações:</strong>
+    <p>{{ orcamento.observacoes }}</p>
+</div>
+{% endif %}
+
+<a href="{% url 'orcamento_pdf' orcamento.id %}">
+    Exportar PDF
+</a>
+
+
+<div class="footer">
+    <p>Não é documento fiscal - Não comprova pagamento</p>
+    <p>Garantia:</p>
+    <p>7 dias para serviço</p>
+    <p>30 dias para peças confeccionadas</p>
+</div>
+
+</body>
+</html>
