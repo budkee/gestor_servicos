@@ -1,18 +1,16 @@
 from django.urls import reverse
-from django.test import TestCase
 from django.contrib.auth.models import User
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
 
-from orcamentos.models import Cliente, Orcamento
+from apps.orcamentos.models import Cliente, Orcamento
 
 # =========================
 # API de Orçamento
 # =========================
-class OrcamentoAPITest(TestCase):
+class OrcamentoAPITest(APITestCase):
     """
     # Testa:
-    - Autenticação
     - Listagem
     - Criação
     - Recuperação individual
@@ -23,24 +21,39 @@ class OrcamentoAPITest(TestCase):
             username="teste",
             password="123456"
         )
-        self.client = APIClient()
+    
+        self.cliente = Cliente.objects.create(
+            nome="Cliente Teste",
+            cpf_cnpj="12345678900",
+            celular="999999999",
+            email="teste@email.com"
+        )
+
+        self.url = reverse("orcamento-list") 
+
+    # =========================
+    # LISTAGEM REQUER LOGIN
+    # =========================
+    def test_listagem_requer_autenticacao(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    # =========================
+    # LISTAR
+    # =========================
+    def test_listar_orcamentos_autenticado(self):
         self.client.force_authenticate(user=self.user)
 
-    # =========================
-    # LISTAR - GET
-    # =========================
-    def test_listar_orcamentos(self):
-        url = reverse("orcamento-list")
-        response = self.client.get(url)
+        response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIsInstance(response.data, list)
+        self.assertEqual(response.data, [])
 
     # =========================
-    # CRIAR - POST
+    # CRIAR
     # =========================
     def test_criar_orcamento(self):
-        url = reverse("orcamento-list")
+        self.client.force_authenticate(user=self.user)
 
         payload = {
             "cliente": self.cliente.id,
@@ -48,7 +61,7 @@ class OrcamentoAPITest(TestCase):
             "desconto_percentual": 10
         }
 
-        response = self.client.post(url, payload, format="json")
+        response = self.client.post(self.url, payload, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Orcamento.objects.count(), 1)
@@ -58,9 +71,11 @@ class OrcamentoAPITest(TestCase):
         self.assertEqual(orcamento.desconto_percentual, 10)
 
     # =========================
-    # DETALHE - GET
+    # DETALHAR
     # =========================
     def test_detalhar_orcamento(self):
+        self.client.force_authenticate(user=self.user)
+
         orcamento = Orcamento.objects.create(
             cliente=self.cliente,
             tipo_servico="ORCAMENTO"
@@ -73,22 +88,14 @@ class OrcamentoAPITest(TestCase):
         self.assertEqual(response.data["id"], orcamento.id)
 
     # =========================
-    # 404 - GET
+    # 404
     # =========================
     def test_detalhar_orcamento_inexistente(self):
+        self.client.force_authenticate(user=self.user)
+
         url = reverse("orcamento-api-detail", args=[999])
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    # =========================
-    # AUTENTICAÇÃO - GET
-    # =========================
-    def test_api_exige_autenticacao(self):
-        self.client.force_authenticate(user=None)
-
-        url = reverse("orcamento-list")
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 

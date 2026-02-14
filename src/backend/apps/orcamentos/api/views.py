@@ -7,10 +7,12 @@ from django.views.generic import DetailView
 
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework import serializers
 
 from weasyprint import HTML
 
-from .models import Orcamento
+from ..models import Orcamento, Pagamento
 from .serializers import OrcamentoSerializer
 
 
@@ -28,6 +30,37 @@ class OrcamentoRetrieveView(generics.RetrieveAPIView):
     queryset = Orcamento.objects.all()
     serializer_class = OrcamentoSerializer
     permission_classes = [IsAuthenticated]
+
+
+class ItemCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, pk):
+        orcamento = get_object_or_404(Orcamento, pk=pk)
+
+        serializer = ItemOrcamentoSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        item = criar_item(
+            orcamento=orcamento,
+            **serializer.validated_data
+        )
+
+        return Response(
+            ItemOrcamentoSerializer(item).data,
+            status=201
+        )
+
+class PagamentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pagamento
+        exclude = ("orcamento",)
+        read_only_fields = ("desconto_valor", "total")
+
+    def create(self, validated_data):
+        raise NotImplementedError(
+            "Use o service criar_pagamento() para criar pagamentos."
+        )
 
 
 # =========================
@@ -57,3 +90,4 @@ def gerar_pdf_orcamento(request, pk):
     HTML(string=html_string).write_pdf(response)
 
     return response
+

@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class OrcamentosConfig(AppConfig):
-    name = 'orcamentos'
+    name = 'apps.orcamentos'
