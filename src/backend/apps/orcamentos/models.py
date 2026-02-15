@@ -7,11 +7,7 @@ from django.db import (
     transaction, 
     IntegrityError
 )
-from orcamentos.services.calculos import (
-    calcular_valor_item, 
-    calcular_desconto, 
-    calcular_total
-)
+from .services.calculos import calcular_valor_item
 
 # =========================
 # Cliente
@@ -164,11 +160,7 @@ class ItemOrcamento(models.Model):
             orcamento = self.orcamento
             super().delete(*args, **kwargs)
 
-            orcamento.save(update_fields=[
-                "subtotal",
-                "desconto_valor",
-                "total"
-            ])
+            orcamento.save()
 
 
     def save(self, *args, **kwargs):
@@ -230,18 +222,6 @@ class Pagamento(models.Model):
         editable=False
     )
 
-    def save(self, *args, **kwargs):
-        self.desconto_valor = calcular_desconto(
-            self.subtotal,
-            self.desconto_percentual
-        )
-
-        self.total = calcular_total(
-            self.subtotal,
-            self.desconto_valor
-        )
-
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Pagamento {self.orcamento.numero}"

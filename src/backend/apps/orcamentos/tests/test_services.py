@@ -2,17 +2,17 @@ from decimal import Decimal
 from django.test import TestCase
 from django.utils import timezone
 
-from orcamentos.models import (
+from ..models import (
     Orcamento, 
     Cliente, 
     ItemOrcamento
 )
-from orcamentos.services.atomicidade import (
+from ..services.atomicidade import (
     criar_item,
     remover_item,
     recalcular_orcamento
 )
-from orcamentos.services.calculos import (
+from ..services.calculos import (
     calcular_valor_item,
     calcular_subtotal,
     calcular_desconto,

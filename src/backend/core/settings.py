@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'rest_framework', 
     
     # Apps do projeto
-    'orcamentos',
+    'apps.orcamentos',
 ]
 
 MIDDLEWARE = [

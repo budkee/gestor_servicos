@@ -14,6 +14,6 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     
     # App
-    path("api/orcamentos/", include("orcamentos.urls")),
+    path("api/orcamentos/", include("apps.orcamentos.api.urls")),
 ]
 

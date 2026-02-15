@@ -1,12 +1,13 @@
 from decimal import Decimal
 from django.test import TestCase
 from django.utils import timezone
-from orcamentos.models import (
+from ..models import (
     Orcamento, 
     ItemOrcamento,
     Cliente,
     Pagamento
 )
+from ..services.atomicidade import criar_pagamento
 
 # ==============================================
 # REGISTROS DE ORÇAMENTO
@@ -117,7 +118,7 @@ class PagamentoModelTest(TestCase):
         - Calcula total corretamente
         """
 
-        pagamento = Pagamento.objects.create(
+        pagamento = criar_pagamento(
             orcamento=self.orcamento,
             forma_pagamento="PIX",
             prazo_entrega="10 dias",
