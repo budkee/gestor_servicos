@@ -1,19 +1,29 @@
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import DetailView
 
+
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework import serializers
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from weasyprint import HTML
 
 from ..models import Orcamento, Pagamento
-from .serializers import OrcamentoSerializer
+from .serializers import (
+    OrcamentoSerializer,
+    ItemOrcamentoSerializer,
+    SimularOrcamentoSerializer,
+)
+from ..services.atomicidade import criar_item
+from ..services.calculos import calcular_desconto, calcular_total, calcular_valor_item
 
 
 # =========================
@@ -26,7 +36,7 @@ class OrcamentoListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
 
-class OrcamentoRetrieveView(generics.RetrieveAPIView):
+class OrcamentoRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Orcamento.objects.all()
     serializer_class = OrcamentoSerializer
     permission_classes = [IsAuthenticated]
@@ -51,6 +61,33 @@ class ItemCreateView(APIView):
             status=201
         )
 
+
+class OrcamentoSimularView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = SimularOrcamentoSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        quantidade = serializer.validated_data["quantidade"]
+        preco_unitario = serializer.validated_data["preco_unitario"]
+        desconto_percentual = serializer.validated_data["desconto_percentual"]
+
+        subtotal = calcular_valor_item(quantidade, preco_unitario)
+        desconto_valor = calcular_desconto(subtotal, desconto_percentual)
+        total = calcular_total(subtotal, desconto_valor)
+
+        return Response(
+            {
+                "subtotal": subtotal,
+                "desconto_percentual": desconto_percentual,
+                "desconto_valor": desconto_valor,
+                "total": total,
+            },
+            status=200,
+        )
+
+
 class PagamentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pagamento
@@ -73,7 +110,9 @@ class OrcamentoDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "orcamento"
 
 
-@login_required
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def gerar_pdf_orcamento(request, pk):
     orcamento = get_object_or_404(Orcamento, pk=pk)
 
@@ -87,7 +126,9 @@ def gerar_pdf_orcamento(request, pk):
         f'attachment; filename="orcamento_{orcamento.numero_registro}.pdf"'
     )
 
-    HTML(string=html_string).write_pdf(response)
+    HTML(
+        string=html_string,
+        base_url=request.build_absolute_uri("/")
+    ).write_pdf(response)
 
     return response
-

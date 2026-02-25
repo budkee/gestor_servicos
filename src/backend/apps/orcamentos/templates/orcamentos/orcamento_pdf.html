@@ -1,98 +1,184 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8">
-    <style>
-        body { font-family: Arial, sans-serif; font-size: 12px; }
-        h1 { text-align: center; }
-        .header, .footer { margin-bottom: 20px; }
-        .info { margin-bottom: 10px; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            border: 1px solid #000;
-            padding: 6px;
-            text-align: left;
-        }
-        .totais {
-            margin-top: 20px;
-            text-align: right;
-        }
-        .footer {
-            margin-top: 40px;
-            font-size: 10px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Orçamento {{ orcamento.numero_registro }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: "#f8fafc",
+                            100: "#f1f5f9",
+                            200: "#e2e8f0",
+                            600: "#475569",
+                            700: "#334155",
+                            900: "#0f172a"
+                        }
+                    },
+                    fontFamily: {
+                        sans: ["ui-sans-serif", "system-ui", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="stylesheet" href="{% static 'orcamentos/css/style.css' %}">
 </head>
-<body>
 
-<div class="header">
-    <h1>Roseli Budke</h1>
-    <p>WhatsApp: (67) 99833-7364</p>
-    <p>Instagram: roselibudke</p>
-    <p>Facebook: Roseli Budke</p>
-    <p>Nº Registro: {{ orcamento.numero_registro }}</p>
-</div>
+<body class="pdf-body">
 
-<div class="info">
-    <strong>Cliente:</strong> {{ orcamento.cliente.nome }}<br>
-    <strong>CPF/CNPJ:</strong> {{ orcamento.cliente.documento }}<br>
-    <strong>Email:</strong> {{ orcamento.cliente.email }}<br>
-    <strong>Celular:</strong> {{ orcamento.cliente.celular }}
-</div>
+<main class="pdf-main">
+    <!-- HEADER -->
+    <header class="pdf-header">
 
-<table>
-    <thead>
-        <tr>
-            <th>Tipo</th>
-            <th>Descrição</th>
-            <th>Qtd</th>
-            <th>Preço Unit.</th>
-            <th>Valor</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in orcamento.itens.all %}
-        <tr>
-            <td>{{ item.tipo }}</td>
-            <td>{{ item.descricao }}</td>
-            <td>{{ item.quantidade }}</td>
-            <td>R$ {{ item.preco_unitario }}</td>
-            <td>R$ {{ item.valor }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        <!-- LINHA 1 -->
+        <div class="header-row">
 
-<div class="totais">
-    <p><strong>Subtotal:</strong> R$ {{ orcamento.subtotal }}</p>
-    <p><strong>Desconto ({{ orcamento.desconto_percentual }}%):</strong> R$ {{ orcamento.desconto_valor }}</p>
-    <p><strong>Total:</strong> R$ {{ orcamento.total }}</p>
-    <p><strong>Forma de Pagamento:</strong> {{ orcamento.forma_pagamento }}</p>
-    <p><strong>Prazo de Entrega:</strong> {{ orcamento.prazo_entrega }}</p>
-</div>
+            <!-- Esquerda: Logo + Nome -->
+            <div class="brand-wrap">
+                <img
+                    class="brand-logo"
+                    src="{% static 'orcamentos/img/logo-atelie.svg' %}"
+                    alt="Logo do ateliê"
+                >
+                <h1 class="brand-title">
+                    Roseli Budke | Ateliê
+                </h1>
+            </div>
 
-{% if orcamento.observacoes %}
-<div>
-    <strong>Observações:</strong>
-    <p>{{ orcamento.observacoes }}</p>
-</div>
-{% endif %}
+            <!-- Direita: Orçamento + Número -->
+            <div class="header-meta">
+                <h2 class="header-meta-title">
+                    Orçamento <br>
+                </h2>
+                <span class="header-badge">
+                Nº {{ orcamento.numero_registro }}
+                </span>
+            </div>
 
-<a href="{% url 'orcamento_pdf' orcamento.id %}">
-    Exportar PDF
-</a>
+        </div>
+
+        <!-- LINHA 2 -->
+        <div class="contact-list">
+            <p>WhatsApp: (67) 99833-7364</p>
+            <p>Instagram: @roselibudke</p>
+            <p>Facebook: Roseli Budke</p>
+        </div>
+
+    </header>
 
 
-<div class="footer">
-    <p>Não é documento fiscal - Não comprova pagamento</p>
-    <p>Garantia:</p>
-    <p>7 dias para serviço</p>
-    <p>30 dias para peças confeccionadas</p>
-</div>
+    <!-- DADOS CLIENTE -->
+    <section class="section">
+        <h3 class="section-title">
+            Dados do Cliente
+        </h3>
+
+        <div class="client-grid">
+            <p><span class="label-strong">Cliente:</span> {{ orcamento.cliente.nome }}</p>
+            <p><span class="label-strong">CPF/CNPJ:</span> {{ orcamento.cliente.cpf_cnpj }}</p>
+            <p><span class="label-strong">Email:</span> {{ orcamento.cliente.email }}</p>
+            <p><span class="label-strong">Celular:</span> {{ orcamento.cliente.celular }}</p>
+        </div>
+    </section>
+
+
+    <!-- TABELA ITENS -->
+    <section class="section">
+        <h3 class="section-title">
+            Itens do Orçamento
+        </h3>
+
+        <div class="table-wrap">
+            <table class="budget-table">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Descrição</th>
+                        <th class="col-qtd num">Qtd</th>
+                        <th class="col-price num">Preço Unit.</th>
+                        <th class="col-value num">Valor</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in orcamento.itens.all %}
+                    <tr class="budget-table-row">
+                        <td>{{ item.tipo }}</td>
+                        <td>{{ item.descricao }}</td>
+                        <td class="num">{{ item.quantidade }}</td>
+                        <td class="num">R$ {{ item.preco_unitario }}</td>
+                        <td class="num value-strong">R$ {{ item.valor }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            Nenhum item cadastrado.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+
+    <!-- TOTAIS -->
+    <section class="section totals-section">
+        <div class="totals-card">
+            
+            <div class="totals-lines">
+                <div class="totals-line">
+                    <span class="muted">Subtotal</span>
+                    <span class="value-medium">R$ {{ orcamento.subtotal }}</span>
+                </div>
+
+                <div class="totals-line">
+                    <span class="muted">
+                        Desconto ({{ orcamento.desconto_percentual }}%)
+                    </span>
+                    <span class="value-medium value-discount">
+                        - R$ {{ orcamento.desconto_valor }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="total-final-wrap">
+                <div class="total-final">
+                    <span>Total</span>
+                    <span>R$ {{ orcamento.total }}</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- OBSERVAÇÕES -->
+    {% if orcamento.observacoes %}
+    <section class="section note-box">
+        <h3 class="section-title note-title">
+            Observações
+        </h3>
+        <p class="note-text">
+            {{ orcamento.observacoes }}
+        </p>
+    </section>
+    {% endif %}
+
+
+    <!-- FOOTER -->
+    <footer class="pdf-footer">
+        <p>Não é documento fiscal - Não comprova pagamento.</p>
+        <p>Garantia: 7 dias para serviço e 30 dias para peças confeccionadas.</p>
+    </footer>
+
+</main>
 
 </body>
 </html>

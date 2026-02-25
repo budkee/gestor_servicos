@@ -43,13 +43,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Third-party apps
-    'rest_framework', 
-    
+    'rest_framework',
+    'corsheaders',
+
     # Apps do projeto
     'apps.orcamentos',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -57,6 +59,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -141,6 +148,9 @@ REST_FRAMEWORK = {
     ),
 }
 
+# CORS (dev)
+CORS_ALLOW_ALL_ORIGINS = True
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
@@ -149,3 +159,8 @@ SIMPLE_JWT = {
 
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/admin/"
+
+if DEBUG:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")

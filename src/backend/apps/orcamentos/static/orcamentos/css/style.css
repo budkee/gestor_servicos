@@ -1,0 +1,331 @@
+/* =========================================================
+   PDF UI - Preflight
+   ========================================================= */
+*,
+::before,
+::after,
+::backdrop,
+::file-selector-button {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0 solid;
+}
+
+html {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100%;
+}
+
+ol,
+ul,
+menu {
+  list-style: none;
+}
+
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+@page {
+  size: A4;
+  margin: 12mm 12mm 27mm 12mm; /* topo, direita, baixo, esquerda */
+}
+
+/* =========================================================
+   PDF UI - Tokens (text + colors)
+   ========================================================= */
+:root {
+  --pdf-text-1: #0f172a;
+  --pdf-text-2: #334155;
+  --pdf-text-3: #475569;
+  --pdf-border: #e2e8f0;
+  --pdf-bg-soft: #f8fafc;
+}
+
+/* =========================================================
+   PDF UI - Base typography and colors
+   ========================================================= */
+@layer base {
+  body {
+    color: var(--pdf-text-2);
+    background-color: #f1f5f9;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 14px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--pdf-text-1);
+    line-height: 1.2;
+  }
+
+  p,
+  span,
+  td,
+  th {
+    color: inherit;
+  }
+}
+
+/* =========================================================
+   PDF UI - Layout
+   ========================================================= */
+.pdf-body {
+  min-height: 100%;
+  background-color: #f1f5f9;
+  color: var(--pdf-text-2);
+}
+
+.pdf-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px;
+  background-color: #fff;
+}
+
+.pdf-header {
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--pdf-border);
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+.brand-title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--pdf-text-1);
+}
+
+.header-meta {
+  text-align: right;
+}
+
+.header-meta-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--pdf-text-1);
+}
+
+.header-badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: var(--pdf-text-1);
+}
+
+.contact-list {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--pdf-text-3);
+}
+
+.section {
+  margin-top: 32px;
+}
+
+.section-title {
+  margin-bottom: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pdf-text-3);
+}
+
+.client-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 24px;
+  font-size: 14px;
+}
+
+.label-strong {
+  font-weight: 600;
+  color: var(--pdf-text-2);
+}
+
+/* =========================================================
+   PDF UI - Table (items section)
+   ========================================================= */
+.table-wrap {
+  border: 1px solid var(--pdf-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.budget-table {
+  width: 100%;
+  font-size: 14px;
+}
+
+.budget-table thead {
+  background: var(--pdf-text-1);
+}
+
+.budget-table thead th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+}
+
+.budget-table tbody td {
+  padding: 12px 16px;
+  border-top: 1px solid var(--pdf-border);
+}
+
+.budget-table-row:nth-child(even) {
+  background-color: var(--pdf-bg-soft);
+}
+
+.col-qtd {
+  width: 56px;
+}
+
+.col-price {
+  width: 128px;
+}
+
+.col-value {
+  width: 112px;
+}
+
+.num {
+  text-align: right !important;
+}
+
+.value-strong {
+  font-weight: 600;
+  color: var(--pdf-text-1);
+}
+
+.empty-state {
+  text-align: center;
+  color: #94a3b8;
+  padding: 24px 16px !important;
+}
+
+/* =========================================================
+   PDF UI - Totals / note / footer
+   ========================================================= */
+.totals-section {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.totals-card {
+  width: 320px;
+  border: 1px solid var(--pdf-border);
+  border-radius: 12px;
+  background: var(--pdf-bg-soft);
+  padding: 24px;
+}
+
+.totals-lines {
+  font-size: 14px;
+}
+
+.totals-line {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.totals-line:first-child {
+  margin-top: 0;
+}
+
+.muted {
+  color: var(--pdf-text-3);
+}
+
+.value-medium {
+  font-weight: 600;
+}
+
+.value-discount {
+  color: #e11d48;
+}
+
+.total-final-wrap {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #cbd5e1;
+}
+
+.total-final {
+  display: flex;
+  justify-content: space-between;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--pdf-text-1);
+}
+
+.note-box {
+  border: 1px solid var(--pdf-border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.note-title {
+  margin-bottom: 12px;
+}
+
+.note-text {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.pdf-footer {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--pdf-border);
+  font-size: 12px;
+  color: var(--pdf-text-3);
+}

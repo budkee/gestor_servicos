@@ -17,6 +17,8 @@ class Cliente(models.Model):
     cpf_cnpj = models.CharField(max_length=18)
     celular = models.CharField(max_length=20)
     email = models.EmailField()
+    instagram = models.CharField(max_length=255, blank=True, default="")
+    facebook = models.CharField(max_length=255, blank=True, default="")
 
     criado_em = models.DateTimeField(auto_now_add=True)
 
@@ -63,7 +65,6 @@ class Orcamento(models.Model):
         on_delete=models.PROTECT,
         related_name="orcamentos"
     )
-    criado_em = models.DateTimeField(auto_now_add=True)
 
     
     TIPO_SERVICO_CHOICES = [
@@ -104,6 +105,8 @@ class Orcamento(models.Model):
         decimal_places=2,
         default=0
     )
+
+    criado_em = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         if not self.numero_registro:
@@ -224,4 +227,4 @@ class Pagamento(models.Model):
 
 
     def __str__(self):
-        return f"Pagamento {self.orcamento.numero}"
+        return f"Pagamento {self.orcamento.numero_registro}"
