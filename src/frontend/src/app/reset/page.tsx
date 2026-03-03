@@ -1,12 +1,13 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AuthLayout } from "@/components/auth-layout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export default function ResetPage() {
+function ResetContent() {
   const searchParams = useSearchParams();
   const uid = searchParams.get("uid") || "";
   const token = searchParams.get("token") || "";
@@ -68,5 +69,13 @@ export default function ResetPage() {
         </div>
       </div>
     </AuthLayout>
+  );
+}
+
+export default function ResetPage() {
+  return (
+    <Suspense fallback={null}>
+      <ResetContent />
+    </Suspense>
   );
 }
