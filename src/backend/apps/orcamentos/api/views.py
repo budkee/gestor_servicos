@@ -31,22 +31,26 @@ from ..services.calculos import calcular_desconto, calcular_total, calcular_valo
 # =========================
 
 class OrcamentoListCreateView(generics.ListCreateAPIView):
-    queryset = Orcamento.objects.all().order_by("-criado_em")
     serializer_class = OrcamentoSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Orcamento.objects.filter(usuario=self.request.user).order_by("-criado_em")
 
 
 class OrcamentoRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Orcamento.objects.all()
     serializer_class = OrcamentoSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Orcamento.objects.filter(usuario=self.request.user)
 
 
 class ItemCreateView(APIView):
     permission_classes = [IsAuthenticated]
     
     def post(self, request, pk):
-        orcamento = get_object_or_404(Orcamento, pk=pk)
+        orcamento = get_object_or_404(Orcamento, pk=pk, usuario=request.user)
 
         serializer = ItemOrcamentoSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -109,12 +113,15 @@ class OrcamentoDetailView(LoginRequiredMixin, DetailView):
     template_name = "orcamentos/orcamento_detail.html"
     context_object_name = "orcamento"
 
+    def get_queryset(self):
+        return Orcamento.objects.filter(usuario=self.request.user)
+
 
 @api_view(["GET"])
 @authentication_classes([JWTAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def gerar_pdf_orcamento(request, pk):
-    orcamento = get_object_or_404(Orcamento, pk=pk)
+    orcamento = get_object_or_404(Orcamento, pk=pk, usuario=request.user)
 
     html_string = render_to_string(
         "orcamentos/orcamento_pdf.html",
