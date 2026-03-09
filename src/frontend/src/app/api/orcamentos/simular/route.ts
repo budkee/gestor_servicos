@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { resolveServerApiUrl } from "@/lib/server-api-url";
 
 export async function POST(request: Request) {
-  const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+  const apiUrl = resolveServerApiUrl();
   if (!apiUrl) {
     return NextResponse.json(
       { error: "API_URL env var is not set" },
