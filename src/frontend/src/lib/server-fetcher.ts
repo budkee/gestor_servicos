@@ -1,5 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { resolveServerApiUrl } from "@/lib/server-api-url";
 
 type FetcherOptions = RequestInit & {
   skipAuth?: boolean;
@@ -9,7 +10,7 @@ export async function serverFetcher<T>(
   endpoint: string,
   options: FetcherOptions = {}
 ): Promise<T> {
-  const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+  const apiUrl = resolveServerApiUrl();
   if (!apiUrl) {
     throw new Error("API_URL env var is not set");
   }
