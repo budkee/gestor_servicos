@@ -11,11 +11,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default async function OrcamentosPage() {
+type Props = {
+  searchParams: Promise<{ status?: string }>;
+};
+
+export default async function OrcamentosPage({ searchParams }: Props) {
+  const query = await searchParams;
   const orcamentos = await listarOrcamentos();
 
   return (
     <div className="flex flex-col gap-6">
+      {query.status === "criado" ? (
+        <p className="text-sm font-medium text-emerald-700">
+          Orçamento criado com sucesso.
+        </p>
+      ) : null}
+      {query.status === "excluido" ? (
+        <p className="text-sm font-medium text-emerald-700">
+          Orçamento excluído com sucesso.
+        </p>
+      ) : null}
       {/* Card  */}
       <section className="grid gap-4 md:grid-cols-3">
         <Card>

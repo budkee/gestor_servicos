@@ -80,7 +80,7 @@ async function criarOrcamentoAction(formData: FormData) {
   }
 
   try {
-    const novo = await criarOrcamento({
+    await criarOrcamento({
       tipo: tipoServico as "ORCAMENTO" | "CONFECCAO" | "AJUSTE",
       tipo_servico: tipoServico as "ORCAMENTO" | "CONFECCAO" | "AJUSTE",
       itens: itens.map((item) => ({
@@ -104,7 +104,7 @@ async function criarOrcamentoAction(formData: FormData) {
     });
 
     revalidatePath("/orcamentos");
-    redirect(`/orcamentos/${novo.id}?status=criado`);
+    redirect("/orcamentos?status=criado");
   } catch {
     redirect("/orcamentos/novo?erro=1");
   }
