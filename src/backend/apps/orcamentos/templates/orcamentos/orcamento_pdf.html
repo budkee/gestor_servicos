@@ -1,33 +1,12 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Orçamento {{ orcamento.numero_registro }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: "#f8fafc",
-                            100: "#f1f5f9",
-                            200: "#e2e8f0",
-                            600: "#475569",
-                            700: "#334155",
-                            900: "#0f172a"
-                        }
-                    },
-                    fontFamily: {
-                        sans: ["ui-sans-serif", "system-ui", "sans-serif"]
-                    }
-                }
-            }
-        };
-    </script>
-    <link rel="stylesheet" href="{% static 'orcamentos/css/style.css' %}">
+    {% if pdf_css_uri %}
+    <link rel="stylesheet" href="{{ pdf_css_uri }}">
+    {% endif %}
 </head>
 
 <body class="pdf-body">
@@ -41,11 +20,13 @@
 
             <!-- Esquerda: Logo + Nome -->
             <div class="brand-wrap">
+                {% if pdf_logo_uri %}
                 <img
                     class="brand-logo"
-                    src="{% static 'orcamentos/img/logo-atelie.svg' %}"
+                    src="{{ pdf_logo_uri }}"
                     alt="Logo do ateliê"
                 >
+                {% endif %}
                 <h1 class="brand-title">
                     Roseli Budke | Ateliê
                 </h1>

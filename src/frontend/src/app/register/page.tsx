@@ -28,8 +28,18 @@ export default function RegisterPage() {
               Nome completo
             </label>
             <Input
-              name="username"
+              name="full_name"
               placeholder="Nome e Sobrenome"
+              required
+              className="border-slate-700 bg-slate-950 text-slate-100 placeholder:text-slate-500"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-slate-200">
+              Usuário            </label>
+            <Input
+              name="username"
+              placeholder="seu.usuario"
               required
               className="border-slate-700 bg-slate-950 text-slate-100 placeholder:text-slate-500"
             />
@@ -53,7 +63,7 @@ export default function RegisterPage() {
               </label>
               <Input
                 name="instagram"
-                placeholder="@seuinstagram"
+                placeholder="seuinstagram"
                 className="border-slate-700 bg-slate-950 text-slate-100 placeholder:text-slate-500"
               />
             </div>
