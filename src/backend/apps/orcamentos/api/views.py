@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import DetailView
+from django.views.generic import DetailView, CreateAPIView
 
 
 from rest_framework import generics
@@ -103,6 +103,9 @@ class PagamentoSerializer(serializers.ModelSerializer):
 # =========================
 # INTERFACE WEB (HTML)
 # =========================
+
+class RegisterView(CreateAPIView):
+    serializer_class = RegisterSerializer
 
 class OrcamentoDetailView(LoginRequiredMixin, DetailView):
     model = Orcamento
