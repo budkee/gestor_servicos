@@ -5,9 +5,8 @@ from .views import (
     OrcamentoSimularView,
     OrcamentoDetailView,
     gerar_pdf_orcamento,
-    ItemCreateView,
+    ItemCreateView
 )
-from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 
@@ -36,12 +35,7 @@ urlpatterns = [
         OrcamentoSimularView.as_view(),
         name="orcamento-simular"
     ),
-    path(
-        "token/", 
-        TokenObtainPairView.as_view(), 
-        name="token_obtain_pair"
-    ),
-    
+
     # =====================
     # INTERFACE WEB
     # =====================
@@ -55,9 +49,4 @@ urlpatterns = [
         gerar_pdf_orcamento, 
         name="orcamento-pdf"
     ),
-    path(
-        "auth/register/", 
-         RegisterView.as_view()
-    ),
-
 ]

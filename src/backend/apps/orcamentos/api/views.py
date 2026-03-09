@@ -110,9 +110,6 @@ class PagamentoSerializer(serializers.ModelSerializer):
 # INTERFACE WEB (HTML)
 # =========================
 
-class RegisterView(CreateAPIView):
-    serializer_class = RegisterSerializer
-
 class OrcamentoDetailView(LoginRequiredMixin, DetailView):
     model = Orcamento
     template_name = "orcamentos/orcamento_detail.html"

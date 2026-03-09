@@ -3,17 +3,6 @@ from ..models import Cliente, Orcamento, ItemOrcamento, Pagamento
 from ..services.atomicidade import atualizar_item, criar_item, recalcular_orcamento, remover_item
 from ..services.calculos import calcular_desconto, calcular_total
 
-User = get_user_model()
-
-class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = User
-        fields = ("username", "email", "password")
-
-    def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
 
 class ItemOrcamentoSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
