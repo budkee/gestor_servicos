@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
-
-if (!API_URL) {
-  throw new Error("API_URL env var is not set");
-}
-
 type Props = {
   params: Promise<{ id: string }> | { id: string };
 };
@@ -21,6 +15,14 @@ function extractFilename(contentDisposition: string | null): string {
 }
 
 export async function GET(request: Request, { params }: Props) {
+  const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) {
+    return NextResponse.json(
+      { error: "API_URL env var is not set" },
+      { status: 500 }
+    );
+  }
+
   const cookieStore = await cookies();
   const token = cookieStore.get("access_token")?.value;
 
@@ -30,7 +32,7 @@ export async function GET(request: Request, { params }: Props) {
 
   const { id } = await Promise.resolve(params);
 
-  const response = await fetch(`${API_URL}/orcamentos/${id}/pdf/`, {
+  const response = await fetch(`${apiUrl}/orcamentos/${id}/pdf/`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

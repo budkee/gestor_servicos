@@ -1,6 +1,4 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
-from django.contrib.auth import get_user_model
 from ..models import Cliente, Orcamento, ItemOrcamento, Pagamento
 from ..services.atomicidade import atualizar_item, criar_item, recalcular_orcamento, remover_item
 from ..services.calculos import calcular_desconto, calcular_total
@@ -112,6 +110,15 @@ class OrcamentoSerializer(serializers.ModelSerializer):
             "cliente": {"required": False},
             "tipo_servico": {"required": False},
         }
+
+    def get_fields(self):
+        fields = super().get_fields()
+        request = self.context.get("request")
+        if request and request.user and request.user.is_authenticated:
+            fields["cliente"].queryset = Cliente.objects.filter(usuario=request.user)
+        else:
+            fields["cliente"].queryset = Cliente.objects.none()
+        return fields
 
     def _principal_item(self, orcamento: Orcamento):
         return orcamento.itens.order_by("id").first()
@@ -248,7 +255,7 @@ class OrcamentoSerializer(serializers.ModelSerializer):
 
         return data
 
-    def _resolver_cliente(self, validated_data):
+    def _resolver_cliente(self, validated_data, usuario):
         cliente = validated_data.get("cliente")
         cliente_nome = (validated_data.pop("cliente_nome", "") or "").strip()
         cpf_cnpj = (validated_data.pop("cpf_cnpj", "") or "").strip()
@@ -258,10 +265,15 @@ class OrcamentoSerializer(serializers.ModelSerializer):
         facebook = (validated_data.pop("facebook", "") or "").strip()
 
         if cliente is not None:
+            if cliente.usuario_id != usuario.id:
+                raise serializers.ValidationError(
+                    {"cliente": "Cliente invalido para o usuario autenticado."}
+                )
             return cliente, cliente_nome, cpf_cnpj, email, celular_wpp, instagram, facebook
 
         if all([cliente_nome, cpf_cnpj, email, celular_wpp]):
             cliente = Cliente.objects.create(
+                usuario=usuario,
                 nome=cliente_nome,
                 cpf_cnpj=cpf_cnpj,
                 celular=celular_wpp,
@@ -271,9 +283,10 @@ class OrcamentoSerializer(serializers.ModelSerializer):
             )
             return cliente, cliente_nome, cpf_cnpj, email, celular_wpp, instagram, facebook
 
-        cliente = Cliente.objects.order_by("id").first()
+        cliente = Cliente.objects.filter(usuario=usuario).order_by("id").first()
         if cliente is None:
             cliente = Cliente.objects.create(
+                usuario=usuario,
                 nome="Cliente padrão",
                 cpf_cnpj="00000000000",
                 celular="00000000000",
@@ -284,7 +297,9 @@ class OrcamentoSerializer(serializers.ModelSerializer):
         return cliente, cliente_nome, cpf_cnpj, email, celular_wpp, instagram, facebook
 
     def create(self, validated_data):
-        cliente, _, _, _, _, _, _ = self._resolver_cliente(validated_data)
+        request = self.context.get("request")
+        usuario = request.user
+        cliente, _, _, _, _, _, _ = self._resolver_cliente(validated_data, usuario=usuario)
         pagamento_payload = validated_data.pop("pagamento", None)
 
         tipo = validated_data.pop("tipo", None) or validated_data.get("tipo_servico")
@@ -298,6 +313,7 @@ class OrcamentoSerializer(serializers.ModelSerializer):
         )
 
         validated_data["cliente"] = cliente
+        validated_data["usuario"] = usuario
         validated_data["tipo_servico"] = tipo
 
         orcamento = Orcamento.objects.create(**validated_data)
@@ -310,7 +326,10 @@ class OrcamentoSerializer(serializers.ModelSerializer):
         return orcamento
 
     def update(self, instance, validated_data):
-        _, cliente_nome, cpf_cnpj, email, celular_wpp, instagram, facebook = self._resolver_cliente(validated_data)
+        _, cliente_nome, cpf_cnpj, email, celular_wpp, instagram, facebook = self._resolver_cliente(
+            validated_data,
+            usuario=instance.usuario,
+        )
         pagamento_payload = validated_data.pop("pagamento", None)
 
         if cliente_nome:

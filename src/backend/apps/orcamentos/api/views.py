@@ -2,7 +2,9 @@ from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import DetailView, CreateAPIView
+from django.views.generic import DetailView
+from django.contrib.staticfiles import finders
+from pathlib import Path
 
 
 from rest_framework import generics
@@ -31,22 +33,26 @@ from ..services.calculos import calcular_desconto, calcular_total, calcular_valo
 # =========================
 
 class OrcamentoListCreateView(generics.ListCreateAPIView):
-    queryset = Orcamento.objects.all().order_by("-criado_em")
     serializer_class = OrcamentoSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Orcamento.objects.filter(usuario=self.request.user).order_by("-criado_em")
 
 
 class OrcamentoRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Orcamento.objects.all()
     serializer_class = OrcamentoSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Orcamento.objects.filter(usuario=self.request.user)
 
 
 class ItemCreateView(APIView):
     permission_classes = [IsAuthenticated]
     
     def post(self, request, pk):
-        orcamento = get_object_or_404(Orcamento, pk=pk)
+        orcamento = get_object_or_404(Orcamento, pk=pk, usuario=request.user)
 
         serializer = ItemOrcamentoSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -112,16 +118,26 @@ class OrcamentoDetailView(LoginRequiredMixin, DetailView):
     template_name = "orcamentos/orcamento_detail.html"
     context_object_name = "orcamento"
 
+    def get_queryset(self):
+        return Orcamento.objects.filter(usuario=self.request.user)
+
 
 @api_view(["GET"])
 @authentication_classes([JWTAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def gerar_pdf_orcamento(request, pk):
-    orcamento = get_object_or_404(Orcamento, pk=pk)
+    orcamento = get_object_or_404(Orcamento, pk=pk, usuario=request.user)
+
+    css_path = finders.find("orcamentos/css/style.css")
+    logo_path = finders.find("orcamentos/img/logo-atelie.svg")
 
     html_string = render_to_string(
         "orcamentos/orcamento_pdf.html",
-        {"orcamento": orcamento}
+        {
+            "orcamento": orcamento,
+            "pdf_css_uri": Path(css_path).as_uri() if css_path else "",
+            "pdf_logo_uri": Path(logo_path).as_uri() if logo_path else "",
+        },
     )
 
     response = HttpResponse(content_type="application/pdf")

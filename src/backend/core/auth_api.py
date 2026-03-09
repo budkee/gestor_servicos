@@ -16,9 +16,16 @@ User = get_user_model()
 
 
 class RegisterSerializer(serializers.Serializer):
+    full_name = serializers.CharField(max_length=150)
     username = serializers.CharField(max_length=150)
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True, min_length=6)
+
+    def validate_full_name(self, value):
+        full_name = value.strip()
+        if not full_name:
+            raise serializers.ValidationError("Nome completo obrigatorio.")
+        return full_name
 
     def validate_username(self, value):
         if User.objects.filter(username=value).exists():
@@ -32,6 +39,7 @@ class RegisterSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         user = User(
+            first_name=validated_data["full_name"],
             username=validated_data["username"],
             email=validated_data["email"],
         )
@@ -50,6 +58,7 @@ class RegisterView(APIView):
         return Response(
             {
                 "id": user.id,
+                "full_name": user.first_name,
                 "username": user.username,
                 "email": user.email,
             },

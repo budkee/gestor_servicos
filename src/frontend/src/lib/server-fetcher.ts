@@ -5,21 +5,20 @@ type FetcherOptions = RequestInit & {
   skipAuth?: boolean;
 };
 
-const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
-
-if (!API_URL) {
-  throw new Error("API_URL env var is not set");
-}
-
 export async function serverFetcher<T>(
   endpoint: string,
   options: FetcherOptions = {}
 ): Promise<T> {
+  const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) {
+    throw new Error("API_URL env var is not set");
+  }
+
   const { skipAuth, headers, ...rest } = options;
   const cookieStore = await cookies();
   const token = cookieStore.get("access_token")?.value;
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  const response = await fetch(`${apiUrl}${endpoint}`, {
     headers: {
       "Content-Type": "application/json",
       ...(token && !skipAuth ? { Authorization: `Bearer ${token}` } : {}),

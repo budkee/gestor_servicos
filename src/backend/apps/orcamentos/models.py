@@ -1,4 +1,5 @@
 from decimal import Decimal
+from django.conf import settings
 from django.db.models import Max
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -13,6 +14,13 @@ from .services.calculos import calcular_valor_item
 # Cliente
 # =========================
 class Cliente(models.Model):
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="clientes",
+        null=True,
+        blank=True,
+    )
     nome = models.CharField(max_length=255)
     cpf_cnpj = models.CharField(max_length=18)
     celular = models.CharField(max_length=20)
@@ -30,6 +38,13 @@ class Cliente(models.Model):
 # Orçamento
 # =========================
 class Orcamento(models.Model):
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="orcamentos",
+        null=True,
+        blank=True,
+    )
     
     numero_registro = models.CharField(
         max_length=20,
