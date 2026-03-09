@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 
-const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
-
-if (!API_URL) {
-  throw new Error("API_URL env var is not set");
-}
-
 export async function POST(request: Request) {
+  const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) {
+    return NextResponse.json(
+      { error: "API_URL env var is not set" },
+      { status: 500 }
+    );
+  }
+
   const contentType = request.headers.get("content-type") || "";
 
   let fullName = "";
@@ -35,7 +37,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const response = await fetch(`${API_URL}/auth/register/`, {
+  const response = await fetch(`${apiUrl}/auth/register/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ full_name: fullName, username, email, password }),

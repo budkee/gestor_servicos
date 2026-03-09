@@ -3,6 +3,8 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import DetailView
+from django.contrib.staticfiles import finders
+from pathlib import Path
 
 
 from rest_framework import generics
@@ -123,9 +125,16 @@ class OrcamentoDetailView(LoginRequiredMixin, DetailView):
 def gerar_pdf_orcamento(request, pk):
     orcamento = get_object_or_404(Orcamento, pk=pk, usuario=request.user)
 
+    css_path = finders.find("orcamentos/css/style.css")
+    logo_path = finders.find("orcamentos/img/logo-atelie.svg")
+
     html_string = render_to_string(
         "orcamentos/orcamento_pdf.html",
-        {"orcamento": orcamento}
+        {
+            "orcamento": orcamento,
+            "pdf_css_uri": Path(css_path).as_uri() if css_path else "",
+            "pdf_logo_uri": Path(logo_path).as_uri() if logo_path else "",
+        },
     )
 
     response = HttpResponse(content_type="application/pdf")

@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
-
-if (!API_URL) {
-  throw new Error("API_URL env var is not set");
-}
-
 export async function POST(request: Request) {
+  const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) {
+    return NextResponse.json(
+      { error: "API_URL env var is not set" },
+      { status: 500 }
+    );
+  }
+
   const cookieStore = await cookies();
   const token = cookieStore.get("access_token")?.value;
 
@@ -17,7 +19,7 @@ export async function POST(request: Request) {
 
   const payload = await request.json();
 
-  const response = await fetch(`${API_URL}/orcamentos/api/simular/`, {
+  const response = await fetch(`${apiUrl}/orcamentos/api/simular/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
